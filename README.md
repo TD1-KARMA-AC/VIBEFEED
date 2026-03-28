@@ -1,27 +1,46 @@
-# VibeFeed API
+# VIBEFEED
 
-Node.js/Express backend for VibeFeed. Deploy to Railway or run locally.
+Monorepo for **VibeFeed**: Expo app + Node API + Supabase schema.
 
-## Run locally
+## Layout
+
+| Path | Purpose |
+|------|---------|
+| `vibefeed/` | Expo (iOS / Android / web) — main app |
+| `vibefeed-api/` | Express API for feed, likes, Spotify seed |
+| `supabase-schema.sql` | Run in Supabase SQL Editor |
+
+## Local dev
+
+**API**
 
 ```bash
+cd vibefeed-api
 cp .env.example .env
-# Edit .env: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY from Supabase Dashboard
+# Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SPOTIFY_*
+npm install
 npm run dev
 ```
 
-Server runs at http://localhost:3001.
+**App**
 
-## Endpoints
+```bash
+cd vibefeed
+cp .env.example .env.local   # if you add one; see Expo docs for env
+npm install
+npx expo start
+```
 
-- `GET /health` — health check
-- `GET /feed?page=0&limit=10` — feed (requires Supabase tables)
-- `POST /track/like` — body: `{ trackId, userId }`
-- `DELETE /track/like` — body: `{ trackId, userId }`
-- `POST /track/save` — body: `{ trackId, userId }`
-- `GET /track/:id/comments` — list comments
-- `POST /track/:id/comments` — body: `{ userId, text }`
+## Netlify (web)
 
-## Supabase
+- Connect this repo to Netlify.
+- Config is in `netlify.toml` (build base `vibefeed`, output `dist`).
+- Set env vars in Netlify: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_API_URL`.
 
-Run `../supabase-schema.sql` in your Supabase project (SQL Editor) before using the API.
+## API hosting (Railway / Render)
+
+Deploy the `vibefeed-api` folder; set the same Supabase + Spotify env vars as in `.env.example`.
+
+## Domain (Namecheap)
+
+Point **A / CNAME** for `vibefeed.world` to Netlify’s instructions after you add the custom domain there. Use a subdomain (e.g. `api.vibefeed.world`) for the API host.

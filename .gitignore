@@ -1,5 +1,30 @@
+# Dependencies
 node_modules/
+
+# Env / secrets (never commit)
 .env
 .env.local
-dist/
+.env.*.local
+*.pem
+
+# Logs
 *.log
+npm-debug.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build output
+dist/
+web-build/
+.expo/
+
+# Native (Expo prebuild)
+vibefeed/ios/
+vibefeed/android/
+
+# Local / junk not part of this repo
+GRAND THEFT AUTO GOOGLE MAPS/
+spotify-app-details.txt
+VibeFeed-Demo.html

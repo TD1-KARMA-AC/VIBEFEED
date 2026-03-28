@@ -1,31 +1,74 @@
 import { createClient } from '@supabase/supabase-js';
-import { createMMKV } from 'react-native-mmkv';
+import { Platform } from 'react-native';
 
-const storage = createMMKV();
+const memoryStore = new Map<string, string>();
 
-const ExpoSecureStoreAdapter = {
+const memoryAdapter = {
+  getItem: (key: string) => memoryStore.get(key) ?? null,
+  setItem: (key: string, value: string) => {
+    memoryStore.set(key, value);
+  },
+  removeItem: (key: string) => {
+    memoryStore.delete(key);
+  },
+};
+
+const webAdapter = {
   getItem: (key: string) => {
     try {
-      const value = storage.getString(key);
-      return value ?? null;
+      return localStorage.getItem(key);
     } catch {
       return null;
     }
   },
   setItem: (key: string, value: string) => {
-    storage.set(key, value);
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      /* ignore */
+    }
   },
   removeItem: (key: string) => {
-    storage.remove(key);
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      /* ignore */
+    }
   },
 };
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
+function createAuthStorage() {
+  if (Platform.OS === 'web') {
+    if (typeof localStorage !== 'undefined') {
+      return webAdapter;
+    }
+    return memoryAdapter;
+  }
+  const { createMMKV } = require('react-native-mmkv') as typeof import('react-native-mmkv');
+  const storage = createMMKV();
+  return {
+    getItem: (key: string) => {
+      try {
+        return storage.getString(key) ?? null;
+      } catch {
+        return null;
+      }
+    },
+    setItem: (key: string, value: string) => {
+      storage.set(key, value);
+    },
+    removeItem: (key: string) => {
+      storage.remove(key);
+    },
+  };
+}
+
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: ExpoSecureStoreAdapter,
+    storage: createAuthStorage(),
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

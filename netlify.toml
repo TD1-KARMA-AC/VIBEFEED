@@ -1,0 +1,13 @@
+# Netlify: Expo web static export (SDK 55)
+# Set these in Netlify UI → Site settings → Environment variables:
+#   EXPO_PUBLIC_SUPABASE_URL
+#   EXPO_PUBLIC_SUPABASE_ANON_KEY
+#   EXPO_PUBLIC_API_URL   (your Railway API URL, e.g. https://api.vibefeed.world)
+
+[build]
+  base = "vibefeed"
+  command = "npm ci && npm run build:web"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
